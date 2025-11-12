@@ -8,19 +8,21 @@ import { ProductsContainer } from "@/components/admin/ProductContainer";
 //import { ImportDialog } from "./import-dialog";
 import type {  Product } from "@/types/product";
 import { toast } from "sonner"
+import { useRouter } from "next/navigation";
 
 export function ProductManagement() {
   const [showForm, setShowForm] = useState(false);
   //const [showImport, setShowImport] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [refreshToken, setRefreshToken] = useState(0);
-
-  const bumpRefresh = () => setRefreshToken((x) => x + 1);
-
+  const router = useRouter()
   const handleEdit = (product: Product) => {
-    setEditingProduct(product);
-    setShowForm(true);
-  };
+    router.push(`/admin/products/edit/${product._id}`);
+  }; 
+
+  const handleCreate = ()=>{
+    router.push('/admin/products/new')
+  }
 
   const handleDelete = async (productId: string) => {
     if (!confirm("¿Estás seguro de que quieres eliminar este producto?")) return;
@@ -66,7 +68,7 @@ export function ProductManagement() {
             Importar
           </Button> 
           */}
-          <Button onClick={() => { setEditingProduct(null); setShowForm(true); }}>
+          <Button onClick={() => { handleCreate()}}>
             <Plus className="h-4 w-4 mr-2" />
             Agregar Producto
           </Button>
@@ -80,14 +82,6 @@ export function ProductManagement() {
         refreshToken={refreshToken}
       />
 
-      {/* Modal de formulario */}
-      {showForm && (
-        <ProductForm
-          product={editingProduct}
-          onSave={() => { setShowForm(false); setEditingProduct(null); bumpRefresh();  }}
-          onCancel={() => { setShowForm(false); setEditingProduct(null); }}
-        />
-      )}
 
       {/* Importar CSV 
       {showImport && (
