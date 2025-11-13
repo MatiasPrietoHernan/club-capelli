@@ -1,22 +1,28 @@
-
-export interface IProduct {
-    _id: string
-    name: string
-    description?: string
-    price: number
-    salePrice?: number | null
-    category: string
-    image: string
-    stock: number
+export interface IVariant {
+  variant_id: number
+  sku: string
+  label: string
+  color: string
+  price: number
+  promotional_price: number
+  effective_price: number
+  stock_total: number
+  image_url: string
+  visible: boolean
+  weight: number
 }
 
-export interface Product {
-  id: string
+export interface Product{
+  _id: string
   name: string
   description: string
+  brand?: string
+  product_id?: number
+  images: string[]
   price: number
-  salePrice?: number | null
-  category: string
-  image: string
-  stock: number
+  salePrice?: number
+  stock?: number
+  quantity?: number | undefined
+  variants: IVariant[]
+  category?: string
 }

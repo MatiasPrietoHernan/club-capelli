@@ -49,14 +49,14 @@ export function ProductList({ products, loading, onEdit, onDelete }: ProductList
           ? Math.round(((product.price - product.salePrice!) / product.price) * 100)
           : null
         return (
-          <Card key={product.id} className="overflow-hidden">
+          <Card key={product._id} className="overflow-hidden">
             <div className="relative">
               <Image
-                src={product.image || "/placeholder.svg"}
+                src={product.images[0] || "/placeholder.svg"}
                 alt={product.name}
                 width={300}
                 height={200}
-                className="w-full h-48 object-cover"
+                className="w-full h-48 object-contain"
               />
               <div className="absolute top-2 right-2 flex space-x-1">
                 {discountPercentage && product.salePrice && (
@@ -64,8 +64,8 @@ export function ProductList({ products, loading, onEdit, onDelete }: ProductList
                     -{Math.round(((product.price - product.salePrice) / product.price) * 100)}%
                   </Badge>
                 )}
-                {product.stock === 0 && <Badge variant="destructive">Agotado</Badge>}
-                {product.stock > 0 && product.stock <= 5 && (
+                {product.quantity === 0 && <Badge variant="destructive">Agotado</Badge>}
+                {product.quantity && product.quantity  > 0 && product.quantity <= 5 && (
                   <Badge variant="outline" className="bg-yellow-100">
                     Poco Stock
                   </Badge>
@@ -95,7 +95,7 @@ export function ProductList({ products, loading, onEdit, onDelete }: ProductList
                     <span className="text-lg font-bold text-gray-900">${formatPrice(product.price)}</span>
                   )}
                 </div>
-                <span className="text-sm text-gray-600">Stock: {product.stock}</span>
+                <span className="text-sm text-gray-600">Stock: {product.quantity}</span>
               </div>
 
               <div className="flex justify-between space-x-2">
@@ -106,7 +106,7 @@ export function ProductList({ products, loading, onEdit, onDelete }: ProductList
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => onDelete(product.id)}
+                  onClick={() => onDelete(product._id)}
                   className="text-red-600 hover:text-red-700 hover:bg-red-50"
                 >
                   <Trash2 className="h-3 w-3" />

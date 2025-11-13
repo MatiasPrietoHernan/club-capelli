@@ -26,7 +26,7 @@ export function ProductForm({ product, onSave, onCancel }: ProductFormProps) {
     price: product?.price || "",
     salePrice: product?.salePrice || "",
     category: product?.category || "",
-    image: product?.image || "",
+    image: product?.images[0] || "",
     stock: product?.stock || 0,
   })
 
@@ -50,7 +50,7 @@ export function ProductForm({ product, onSave, onCancel }: ProductFormProps) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(
-          product ? { ...productData, id: product.id } : productData
+          product ? { ...productData, id: product._id } : productData
         ),
       })
 

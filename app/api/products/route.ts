@@ -1,3 +1,4 @@
+// app/api/products/route
 import { NextResponse } from "next/server"
 import connectDB from "@/lib/database"
 import Product from "@/lib/models/product"
@@ -51,14 +52,12 @@ export async function GET(req: Request) {
       .limit(limit)
       .lean()
 
-
-      //cuando cambie a array en mongo sacar el image este
     const items = rawItems.map((p) => ({ ...p, id: (p as any)._id.toString() }))
 
 
     const [inStock, outOfStock, discounted] = await Promise.all([
-      Product.countDocuments({ stock: { $gt: 0 } }),
-      Product.countDocuments({ stock: 0 }),
+      Product.countDocuments({ quantity: { $gt: 0 } }),
+      Product.countDocuments({ quantity: 0 }),
       Product.countDocuments({ salePrice: { $ne: 0 }, $expr: { $lt: ["$salePrice", "$price"] } }),
     ])
 
@@ -81,32 +80,47 @@ export async function POST(request: Request) {
     if (!session || (session.user as any).role !== "admin")
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-    const product = await request.json()
+    const productData = await request.json()
     if (
-      !product.name ||
-      !product.price?.toString() ||
-      Number(product.price) < 0 ||
-      !product.category ||
-      product.stock < 0 ||
-      !product.description
+      !productData.name ||
+      !productData.description ||
+      productData.price == null
     ) {
-      return NextResponse.json({ error: "Faltan datos requeridos" }, { status: 400 })
+      return NextResponse.json({ error: "Faltan datos requeridos: nombre, descripción y precio" }, { status: 400 })
     }
 
     await connectDB()
 
+    const processedVariants = productData.variants?.map((variant: any) => ({
+      ...variant,
+      effective_price: variant.promotional_price > 0 ? variant.promotional_price : variant.price,
+      variant_id: variant.variant_id || Date.now() + Math.random()
+    })) || []
+
+    const totalStock = processedVariants.reduce((sum: number, variant: any) => sum + (variant.stock_total || 0), 0)
+    const minPrice = processedVariants.length > 0 
+      ? Math.min(...processedVariants.map((v: any) => v.effective_price || v.price))
+      : productData.price
+
     const newProduct = new Product({
-      ...product,
-      image: product.image || "",
-      stock: product.stock || 0,
-      salePrice: Number(product.salePrice) || 0,
-      price: Number(product.price),
+      name: productData.name,
+      description: productData.description,
+      brand: productData.brand || undefined,
+      product_id: productData.product_id || undefined,
+      images: productData.images || [],
+      price: minPrice, 
+      salePrice: minPrice, 
+      stock: totalStock,
+      quantity: totalStock,
+      category: productData.category || "",
+      variants: processedVariants
     })
 
     const savedProduct = await newProduct.save()
 
     return NextResponse.json(savedProduct, { status: 201 })
   } catch (error) {
+    console.error("Error creating product:", error)
     return NextResponse.json({ error: "Error al crear producto" }, { status: 500 })
   }
 }
@@ -117,14 +131,42 @@ export async function PUT(request: Request) {
     if (!session || (session.user as any).role !== "admin")
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-    const product = await request.json()
-    const { id, ...updateData } = product
+    const productData = await request.json()
+    const { id, ...updateData } = productData
 
-    if (!id) return NextResponse.json({ error: "No se encontro el ID de el producto" }, { status: 404 })
+    if (!id) {
+      return NextResponse.json({ error: "No se encontró el ID del producto" }, { status: 400 })
+    }
 
     await connectDB()
 
-    const updatedProduct = await Product.findByIdAndUpdate(id, updateData, { new: true, runValidators: true })
+    if (updateData.variants) {
+      const processedVariants = updateData.variants.map((variant: any) => ({
+        ...variant,
+        effective_price: variant.promotional_price > 0 ? variant.promotional_price : variant.price,
+        variant_id: variant.variant_id || Date.now() + Math.random()
+      }))
+
+      const totalStock = processedVariants.reduce((sum: number, variant: any) => sum + (variant.stock_total || 0), 0)
+      const minPrice = processedVariants.length > 0 
+        ? Math.min(...processedVariants.map((v: any) => v.effective_price || v.price))
+        : updateData.price
+
+      updateData.variants = processedVariants
+      updateData.stock = totalStock
+      updateData.quantity = totalStock
+      updateData.price = minPrice
+      updateData.salePrice = minPrice
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id, 
+      updateData, 
+      { 
+        new: true, 
+        runValidators: true 
+      }
+    )
 
     if (!updatedProduct) {
       return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 })
@@ -132,6 +174,7 @@ export async function PUT(request: Request) {
 
     return NextResponse.json(updatedProduct, { status: 200 })
   } catch (error) {
+    console.error("Error updating product:", error)
     return NextResponse.json({ error: "Error al actualizar producto" }, { status: 500 })
   }
 }

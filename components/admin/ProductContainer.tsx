@@ -91,7 +91,7 @@ export function ProductsContainer({
       </div>
 
       {/* stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">Total Productos</CardTitle>
@@ -116,14 +116,14 @@ export function ProductsContainer({
             <div className="text-2xl font-bold">{summary.outOfStock}</div>
           </CardContent>
         </Card>
-        <Card>
+        {/* <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">Con Descuento</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{summary.discounted}</div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
 
       {/* grilla */}
