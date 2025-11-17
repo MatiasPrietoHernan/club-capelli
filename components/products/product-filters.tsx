@@ -10,6 +10,9 @@ interface ProductFiltersProps {
   categories: string[]
   selectedCategory: string
   onCategoryChange: (category: string) => void
+  brands: string[]
+  selectedBrand: string
+  onBrandChange: (brand: string) => void
   searchTerm: string
   onSearchChange: (term: string) => void
   priceFilter: string
@@ -22,6 +25,9 @@ export function ProductFilters({
   categories,
   selectedCategory,
   onCategoryChange,
+  brands,
+  selectedBrand,
+  onBrandChange,
   searchTerm,
   onSearchChange,
   priceFilter,
@@ -30,9 +36,11 @@ export function ProductFilters({
   onMaxPriceChange,
 }: ProductFiltersProps) {
   const [showCategories, setShowCategories] = useState(false)
+  const [showBrands, setShowBrands] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
 
   const [tempCategory, setTempCategory] = useState(selectedCategory)
+  const [tempBrand, setTempBrand] = useState(selectedBrand)
   const [tempPriceFilter, setTempPriceFilter] = useState(priceFilter)
   const [tempMaxPrice, setTempMaxPrice] = useState(maxPrice)
 
@@ -48,6 +56,11 @@ export function ProductFilters({
     setShowCategories(false)
   }
 
+  const applyBrandFilters = () => {
+    onBrandChange(tempBrand)
+    setShowBrands(false)
+  }
+
   const applyPriceFilters = () => {
     onPriceFilterChange(tempPriceFilter)
     onMaxPriceChange(tempMaxPrice)
@@ -59,6 +72,13 @@ export function ProductFilters({
       setTempCategory(selectedCategory)
     }
     setShowCategories(!showCategories)
+  }
+
+  const handleBrandsToggle = () => {
+    if (!showBrands) {
+      setTempBrand(selectedBrand)
+    }
+    setShowBrands(!showBrands)
   }
 
   const handleFiltersToggle = () => {
@@ -95,7 +115,6 @@ export function ProductFilters({
           <Filter className="h-4 w-4 mr-2" />
           Categorías
         </Button>
-
         <Button
           variant="outline"
           onClick={handleFiltersToggle}
@@ -109,15 +128,17 @@ export function ProductFilters({
           Precio
         </Button>
 
-        {(selectedCategory !== "all" || priceFilter !== "all") && (
+        {(selectedCategory !== "all" || selectedBrand !== "all" || priceFilter !== "all") && (
           <Button
             variant="ghost"
             size="icon"
             onClick={() => {
               onCategoryChange("all")
+              onBrandChange("all")
               onPriceFilterChange("all")
               onMaxPriceChange(0)
               setTempCategory("all")
+              setTempBrand("all")
               setTempPriceFilter("all")
               setTempMaxPrice(0)
             }}
@@ -226,7 +247,7 @@ export function ProductFilters({
         </div>
       )}
 
-      {(showCategories || showFilters) && (
+      {(showCategories || showBrands || showFilters) && (
         <div
           className="fixed inset-0 bg-black/20 z-[9998] animate-in fade-in duration-200"
           onClick={() => {

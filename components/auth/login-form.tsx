@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Eye, EyeOff, ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
 import { signIn } from "next-auth/react"
+import Image from "next/image"
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
@@ -45,15 +46,32 @@ export function LoginForm() {
 
   return (
     <div className="w-full max-w-md">
-      {/* Header con branding */}
+      {/* Header con branding Club Capelli */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center space-x-2 mb-4">
-          <div className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-green-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-lg">W</span>
+          <div
+            className="w-16 h-16 bg-gradient-to-r from-[#FF6B1A] to-[#FF7F00] rounded-lg flex items-center justify-center overflow-hidden shadow-sm"
+            style={{ background: 'linear-gradient(to right, #FF6B1A, #FF7F00)' }}
+          >
+            <Image
+              src="/images/logoCapelli.png"
+              alt="Club Capelli Logo"
+              width={64}
+              height={64}
+              className="object-contain"
+              onError={(e) => {
+                // Fallback to text if logo fails
+                const target = e.target as HTMLElement
+                target.style.display = 'none'
+                const fallback = target.parentElement?.querySelector('.fallback-text') as HTMLElement
+                if (fallback) fallback.style.display = 'block'
+              }}
+            />
+            <span className="fallback-text hidden text-white font-bold text-2xl">CC</span>
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Waichatt</h1>
-            <p className="text-sm text-gray-600">Plataforma SaaS</p>
+            <h1 className="text-3xl font-bold" style={{ color: '#FF6B1A' }}>Club Capelli</h1>
+            <p className="text-sm text-gray-600"></p>
           </div>
         </div>
         <p className="text-gray-600">Accede al panel administrativo</p>
@@ -72,7 +90,7 @@ export function LoginForm() {
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="admin@technocommerce.com"
+                placeholder="admin@clubcapelli.com"
                 required
               />
             </div>
@@ -100,7 +118,26 @@ export function LoginForm() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700" disabled={loading}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loading}
+              style={{
+                backgroundColor: '#FF6B1A',
+                borderColor: '#FF6B1A',
+                color: 'white'
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.backgroundColor = '#E85D0D'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.backgroundColor = '#FF6B1A'
+                }
+              }}
+            >
               {loading ? "Verificando..." : "Iniciar Sesión"}
             </Button>
           </form>
@@ -116,13 +153,16 @@ export function LoginForm() {
         </CardContent>
       </Card>
 
-      {/* Footer con info del cliente */}
+      {/* Footer con info del cliente Club Capelli */}
       <div className="mt-8 text-center">
         <div className="flex items-center justify-center space-x-2 mb-2">
-          <div className="w-6 h-6 bg-gradient-to-r from-emerald-500 to-green-600 rounded flex items-center justify-center">
-            <span className="text-white font-bold text-xs">TC</span>
+          <div
+            className="w-8 h-8 bg-gradient-to-r from-[#FF6B1A] to-[#FF7F00] rounded-lg flex items-center justify-center overflow-hidden"
+            style={{ background: 'linear-gradient(to right, #FF6B1A, #FF7F00)' }}
+          >
+            <span className="text-white font-bold text-sm">CC</span>
           </div>
-          <span className="text-sm font-medium text-gray-700">Cristal Shop</span>
+          <span className="text-sm font-medium" style={{ color: '#FF6B1A' }}>Club Capelli</span>
         </div>
         <p className="text-xs text-gray-500">Cliente de Waichatt desde 2025</p>
       </div>

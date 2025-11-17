@@ -4,6 +4,27 @@ Todos los cambios notables del proyecto Club Capelli.
 
 ---
 
+## [1.2.0] - 2025-11-17
+
+### Nuevas funcionalidades
+- Implementación de apartado "Categorias y Marcas" con el respectivo formulario
+
+**Páginas afectadas:**
+- `/admin/tags` - Creación y edición de Marcas y Categorias
+
+**Características:**
+- Se implementó subtabs para "Marcas":
+  - Tiene una lista para ver las marcas, y para agregarlas con un solo input
+
+- Se implementó subtabs para "Categorias":
+  - Tiene una lista para ver las categorias, y para agregarlas con un solo input
+
+### Edición
+- Se edito las páginas de agregados y edición de productos para buscar las marcas y categorias con un pequeño modal
+- Se realizó el brandeo del BackOffice y login con los colores y el logo de Club Capelli.
+
+
+
 ## [1.1.0] - 2025-11-12
 
 ### 🎯 Nuevas Funcionalidades

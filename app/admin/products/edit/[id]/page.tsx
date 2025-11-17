@@ -10,6 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 import { useRouter, useParams } from "next/navigation"
 import { Upload, X, Loader2 } from "lucide-react"
+import { TagSelectors } from "@/components/admin/tag-selectors"
+import { AdminHeader } from "@/components/admin/AdminHeader"
 
 export default function EditProductPage() {
   const router = useRouter()
@@ -280,35 +282,61 @@ export default function EditProductPage() {
   }
 
   return (
+    <>
+    <AdminHeader/>
     <div className="container mx-auto py-6">
       <Card>
         <CardHeader>
-          <CardTitle>Editar Producto</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Editar Producto</CardTitle>
+            <div className="flex items-center space-x-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.back()}
+                size="sm"
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                style={{
+                  backgroundColor: loading ? '#ccc' : '#FF6B1A',
+                  borderColor: loading ? '#ccc' : '#FF6B1A',
+                  color: 'white'
+                }}
+                onMouseEnter={(e) => {
+                  if (!loading) {
+                    (e.currentTarget as HTMLElement).style.backgroundColor = '#E85D0D'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!loading) {
+                    (e.currentTarget as HTMLElement).style.backgroundColor = '#FF6B1A'
+                  }
+                }}
+                onClick={() => document.querySelector('form')?.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }))}
+                disabled={loading}
+              >
+                {loading ? "Actualizando..." : "Actualizar Producto"}
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Información Básica</h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="name">Nombre del Producto *</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="brand">Marca</Label>
-                  <Input
-                    id="brand"
-                    value={formData.brand}
-                    onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                  />
-                </div>
+              <div>
+                <Label htmlFor="name">Nombre del Producto *</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required
+                />
               </div>
 
               <div>
@@ -322,67 +350,46 @@ export default function EditProductPage() {
                 />
               </div>
 
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="category">Categoría</Label>
-                    <Input
-                      id="category"
-                      value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    />
-                  </div>
-                </div>
+              <TagSelectors
+                selectedCategory={formData.category}
+                selectedBrand={formData.brand}
+                onCategoryChange={(category) => setFormData({ ...formData, category: category === "__none__" ? "" : category })}
+                onBrandChange={(brand) => setFormData({ ...formData, brand: brand === "__none__" ? "" : brand })}
+              />
 
-                <div>
-                  <Label>Imágenes del Producto</Label>
-                  <div className="mt-2 space-y-4">
-                    <div className="flex items-center gap-4">
-                      <label className="flex items-center gap-2 px-4 py-2 border border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
-                        <Upload className="h-4 w-4" />
-                        <span className="text-sm">Seleccionar imágenes</span>
-                        <input
-                          type="file"
-                          multiple
-                          accept="image/*"
-                          onChange={handleMainImageUpload}
-                          className="hidden"
-                          disabled={uploadingMain}
-                        />
-                      </label>
-                      {uploadingMain && (
-                        <div className="flex items-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          <span className="text-sm text-gray-600">Subiendo...</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="https://ejemplo.com/imagen.jpg"
-                        className="flex-1"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault()
-                            const input = e.target as HTMLInputElement
-                            const url = input.value.trim()
-                            if (url) {
-                              setFormData(prev => ({
-                                ...prev,
-                                images: [...prev.images, url]
-                              }))
-                              input.value = ''
-                            }
-                          }
-                        }}
+              <div>
+                <Label>Imágenes del Producto</Label>
+                <div className="mt-2 space-y-4">
+                  <div className="flex items-center gap-4">
+                    <label className="flex items-center gap-2 px-4 py-2 border border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                      <Upload className="h-4 w-4" />
+                      <span className="text-sm">Seleccionar imágenes</span>
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        onChange={handleMainImageUpload}
+                        className="hidden"
+                        disabled={uploadingMain}
                       />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => {
-                          const input = document.querySelector('input[placeholder="https://ejemplo.com/imagen.jpg"]') as HTMLInputElement
-                          const url = input?.value.trim()
+                    </label>
+                    {uploadingMain && (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span className="text-sm text-gray-600">Subiendo...</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="https://ejemplo.com/imagen.jpg"
+                      className="flex-1"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          const input = e.target as HTMLInputElement
+                          const url = input.value.trim()
                           if (url) {
                             setFormData(prev => ({
                               ...prev,
@@ -390,37 +397,64 @@ export default function EditProductPage() {
                             }))
                             input.value = ''
                           }
-                        }}
-                      >
-                        Agregar URL
-                      </Button>
-                    </div>
-
-                    {formData.images.length > 0 && (
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {formData.images.map((url, index) => (
-                          <div key={index} className="relative group">
-                            <img
-                              src={url}
-                              alt={`Imagen ${index + 1}`}
-                              className="w-full h-24 object-cover rounded-lg border"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement
-                                target.src = '/placeholder.svg'
-                              }}
-                            />
-                            <button
-                              type="button"
-                              onClick={() => removeMainImage(index)}
-                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                        }
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        const input = document.querySelector('input[placeholder="https://ejemplo.com/imagen.jpg"]') as HTMLInputElement
+                        const url = input?.value.trim()
+                        if (url) {
+                          setFormData(prev => ({
+                            ...prev,
+                            images: [...prev.images, url]
+                          }))
+                        input.value = ''
+                        }
+                      }}
+                      style={{
+                        borderColor: '#FF6B1A',
+                        color: '#FF6B1A'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(255, 107, 26, 0.1)'
+                        e.currentTarget.style.borderColor = '#E85D0D'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent'
+                        e.currentTarget.style.borderColor = '#FF6B1A'
+                      }}
+                    >
+                      Agregar URL
+                    </Button>
                   </div>
+
+                  {formData.images.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {formData.images.map((url, index) => (
+                        <div key={index} className="relative group">
+                          <img
+                            src={url}
+                            alt={`Imagen ${index + 1}`}
+                            className="w-full h-24 object-cover rounded-lg border"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement
+                              target.src = '/placeholder.svg'
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeMainImage(index)}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -442,7 +476,15 @@ export default function EditProductPage() {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-medium">Variantes</h3>
-                <Button type="button" onClick={addVariant}>
+                <Button type="button" onClick={addVariant} style={{
+                  backgroundColor: '#FF6B1A',
+                  borderColor: '#FF6B1A',
+                  color: 'white'
+                }} onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#E85D0D'
+                }} onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#FF6B1A'
+                }}>
                   Agregar Variante
                 </Button>
               </div>
@@ -591,6 +633,18 @@ export default function EditProductPage() {
                                     input.value = ''
                                   }
                                 }}
+                                style={{
+                                  borderColor: '#FF6B1A',
+                                  color: '#FF6B1A'
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.backgroundColor = 'rgba(255, 107, 26, 0.1)'
+                                  e.currentTarget.style.borderColor = '#E85D0D'
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.backgroundColor = 'transparent'
+                                  e.currentTarget.style.borderColor = '#FF6B1A'
+                                }}
                               >
                                 OK
                               </Button>
@@ -643,7 +697,19 @@ export default function EditProductPage() {
               <Button type="button" variant="outline" onClick={() => router.back()}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" disabled={loading} style={{
+                backgroundColor: loading ? '#ccc' : '#FF6B1A',
+                borderColor: loading ? '#ccc' : '#FF6B1A',
+                color: 'white'
+              }} onMouseEnter={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.backgroundColor = '#E85D0D'
+                }
+              }} onMouseLeave={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.backgroundColor = '#FF6B1A'
+                }
+              }}>
                 {loading ? "Actualizando..." : "Actualizar Producto"}
               </Button>
             </div>
@@ -651,5 +717,6 @@ export default function EditProductPage() {
         </CardContent>
       </Card>
     </div>
+    </>
   )
 }

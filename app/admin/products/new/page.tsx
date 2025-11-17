@@ -10,6 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { Upload, X, Loader2 } from "lucide-react"
+import { TagSelectors } from "@/components/admin/tag-selectors"
+import { AdminHeader } from "@/components/admin/AdminHeader"
 
 export default function NewProductPage() {
   const router = useRouter()
@@ -192,35 +194,61 @@ export default function NewProductPage() {
   }
 
   return (
+    <>
+    <AdminHeader/>
     <div className="container mx-auto py-6">
       <Card>
         <CardHeader>
-          <CardTitle>Crear Nuevo Producto</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Crear Nuevo Producto</CardTitle>
+            <div className="flex items-center space-x-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.back()}
+                size="sm"
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                style={{
+                  backgroundColor: loading ? '#ccc' : '#FF6B1A',
+                  borderColor: loading ? '#ccc' : '#FF6B1A',
+                  color: 'white'
+                }}
+                onMouseEnter={(e) => {
+                  if (!loading) {
+                    (e.currentTarget as HTMLElement).style.backgroundColor = '#E85D0D'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!loading) {
+                    (e.currentTarget as HTMLElement).style.backgroundColor = '#FF6B1A'
+                  }
+                }}
+                onClick={() => document.querySelector('form')?.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }))}
+                disabled={loading}
+              >
+                {loading ? "Creando..." : "Crear Producto"}
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Información Básica</h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="name">Nombre del Producto *</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="brand">Marca</Label>
-                  <Input
-                    id="brand"
-                    value={formData.brand}
-                    onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                  />
-                </div>
+              <div>
+                <Label htmlFor="name">Nombre del Producto *</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required
+                />
               </div>
 
               <div>
@@ -234,19 +262,14 @@ export default function NewProductPage() {
                 />
               </div>
 
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="category">Categoría</Label>
-                    <Input
-                      id="category"
-                      value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    />
-                  </div>
-                </div>
+              <TagSelectors
+                selectedCategory={formData.category}
+                selectedBrand={formData.brand}
+                onCategoryChange={(category) => setFormData({ ...formData, category: category === "__none__" ? "" : category })}
+                onBrandChange={(brand) => setFormData({ ...formData, brand: brand === "__none__" ? "" : brand })}
+              />
 
-                <div>
+              <div>
                   <Label>Imágenes del Producto</Label>
                   <div className="mt-2 space-y-4">
                     <div className="flex items-center gap-4">
@@ -303,6 +326,18 @@ export default function NewProductPage() {
                             input.value = ''
                           }
                         }}
+                        style={{
+                          borderColor: '#FF6B1A',
+                          color: '#FF6B1A'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = 'rgba(255, 107, 26, 0.1)'
+                          e.currentTarget.style.borderColor = '#E85D0D'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent'
+                          e.currentTarget.style.borderColor = '#FF6B1A'
+                        }}
                       >
                         Agregar URL
                       </Button>
@@ -335,13 +370,20 @@ export default function NewProductPage() {
                   </div>
                 </div>
               </div>
-            </div>
 
             {/* Variantes */}
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-medium">Variantes</h3>
-                <Button type="button" onClick={addVariant}>
+                <Button type="button" onClick={addVariant} style={{
+                  backgroundColor: '#FF6B1A',
+                  borderColor: '#FF6B1A',
+                  color: 'white'
+                }} onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#E85D0D'
+                }} onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#FF6B1A'
+                }}>
                   Agregar Variante
                 </Button>
               </div>
@@ -490,6 +532,18 @@ export default function NewProductPage() {
                                     input.value = ''
                                   }
                                 }}
+                                style={{
+                                  borderColor: '#FF6B1A',
+                                  color: '#FF6B1A'
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.backgroundColor = 'rgba(255, 107, 26, 0.1)'
+                                  e.currentTarget.style.borderColor = '#E85D0D'
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.backgroundColor = 'transparent'
+                                  e.currentTarget.style.borderColor = '#FF6B1A'
+                                }}
                               >
                                 OK
                               </Button>
@@ -529,7 +583,19 @@ export default function NewProductPage() {
               <Button type="button" variant="outline" onClick={() => router.back()}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" disabled={loading} style={{
+                backgroundColor: loading ? '#ccc' : '#FF6B1A',
+                borderColor: loading ? '#ccc' : '#FF6B1A',
+                color: 'white'
+              }} onMouseEnter={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.backgroundColor = '#E85D0D'
+                }
+              }} onMouseLeave={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.backgroundColor = '#FF6B1A'
+                }
+              }}>
                 {loading ? "Creando..." : "Crear Producto"}
               </Button>
             </div>
@@ -537,5 +603,6 @@ export default function NewProductPage() {
         </CardContent>
       </Card>
     </div>
+    </>
   )
 }

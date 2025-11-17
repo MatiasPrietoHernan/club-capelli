@@ -10,8 +10,8 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 142.1 76.2% 36.3%;
-    --primary-foreground: 355.7 100% 97.3%;
+    --primary: 18 100% 55%; /* ACÁ BOLUDITO, CAMBIÉ EL VERDE POR NARANJA */
+    --primary-foreground: 0 0% 100%; /* BLANCO PARA EL TEXTO */
     --secondary: 210 40% 98%;
     --secondary-foreground: 222.2 84% 4.9%;
     --muted: 210 40% 98%;
@@ -22,7 +22,7 @@
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 142.1 76.2% 36.3%;
+    --ring: 18 100% 55%; /* Y ACÁ TAMBIÉN */
     --radius: 0.5rem;
   }
 }

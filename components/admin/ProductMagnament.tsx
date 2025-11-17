@@ -68,7 +68,15 @@ export function ProductManagement() {
             Importar
           </Button> 
           */}
-          <Button onClick={() => { handleCreate()}}>
+          <Button onClick={() => { handleCreate()}} style={{
+            backgroundColor: '#FF6B1A',
+            borderColor: '#FF6B1A',
+            color: 'white'
+          }} onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#E85D0D'
+          }} onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#FF6B1A'
+          }}>
             <Plus className="h-4 w-4 mr-2" />
             Agregar Producto
           </Button>

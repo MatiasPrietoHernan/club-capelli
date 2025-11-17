@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import "./globals.css"
 import { CartProvider } from "@/contexts/cart-context"
 import { Toaster } from "sonner"
-import { AuthProvider } from "@/components/auth/auth-providers"
+import  AuthProvider  from "@/components/auth/auth-providers"
 import { DynamicTitle } from "@/components/layout/dynamicTitle"
 
 export const metadata: Metadata = {

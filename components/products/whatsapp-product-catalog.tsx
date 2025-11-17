@@ -27,11 +27,13 @@ export function ProductCatalog() {
   const [initialLoading, setInitialLoading] = useState(true)
 
   const [categories, setCategories] = useState<string[]>([])
+  const [brands, setBrands] = useState<string[]>([])
   const [filterPrice, setFilterPrice] = useState<string>("all")
   const [maxPrice, setMaxPrice] = useState<number>(0)
   const [catLoading, setCatLoading] = useState(true)
 
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
+  const [selectedBrand, setSelectedBrand] = useState<string>("all")
   const [searchTerm, setSearchTerm] = useState("")
   const debouncedSearch = useDebounce(searchTerm, 450)
 
@@ -45,12 +47,26 @@ export function ProductCatalog() {
     ;(async () => {
       try {
         setCatLoading(true)
-        const res = await fetch("/api/categories")
-        const data: ApiCategories = await res.json()
-        const names = data.categories?.map((c) => c.name) ?? []
-        setCategories(["all", ...names])
+        const [categoriesRes, brandsRes] = await Promise.all([
+          fetch("/api/tags/categories"),
+          fetch("/api/tags/brands")
+        ])
+
+        const categoriesData: ApiCategories = await categoriesRes.json()
+        console.log('Categories data:', categoriesData)
+
+        const brandsData = await brandsRes.json()
+        console.log('Brands data:', brandsData)
+
+        const categoryNames = categoriesData.categories?.map((c) => c.name) ?? []
+        const brandNames = brandsData.brands?.map((b: any) => b.name) ?? []
+        console.log('Brand names:', brandNames)
+
+        setCategories(["all", ...categoryNames])
+        setBrands(["all", ...brandNames])
       } catch {
         setCategories(["all"])
+        setBrands(["all"])
       } finally {
         setCatLoading(false)
       }
@@ -67,7 +83,7 @@ export function ProductCatalog() {
       fetchPage(1, true, debouncedSearch)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCategory, debouncedSearch, initialLoading, filterPrice])
+  }, [selectedCategory, selectedBrand, debouncedSearch, initialLoading, filterPrice])
 
   async function fetchPage(nextPage: number, replace = false, qOverride?: string) {
     abortRef.current?.abort()
@@ -83,6 +99,7 @@ export function ProductCatalog() {
     const q = qOverride ?? debouncedSearch
     if (q) params.set("q", q)
     if (selectedCategory && selectedCategory !== "all") params.set("category", selectedCategory)
+    if (selectedBrand && selectedBrand !== "all") params.set("brand", selectedBrand)
 
     try {
       if (replace || nextPage === 1) setLoading(true)
@@ -145,6 +162,9 @@ export function ProductCatalog() {
           categories={categories}
           selectedCategory={selectedCategory}
           onCategoryChange={setSelectedCategory}
+          brands={brands}
+          selectedBrand={selectedBrand}
+          onBrandChange={setSelectedBrand}
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
         />
@@ -177,6 +197,7 @@ export function ProductCatalog() {
                     variant="outline"
                     onClick={() => {
                       setSelectedCategory("all")
+                      setSelectedBrand("all")
                       setSearchTerm("")
                       setFilterPrice("all")
                       setMaxPrice(0)
