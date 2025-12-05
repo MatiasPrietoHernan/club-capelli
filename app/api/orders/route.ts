@@ -16,12 +16,18 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status")
     const dateFrom = searchParams.get("dateFrom")
     const dateTo = searchParams.get("dateTo")
+  
 
     const query: any = {}
 
     if (phone) {
-      query.customerPhone = { $regex: phone, $options: "i" }
+      query.$or = [
+        { customerPhone: { $regex: phone, $options: "i" } },
+        { customerDNI: { $regex: phone, $options: "i" } },
+        { dni: { $regex: phone, $options: "i" } }
+      ]
     }
+    
 
     if (status && status !== "Todos") {
       query.status = status
@@ -51,18 +57,37 @@ export async function POST(request: NextRequest) {
     await connectDB()
 
     const body = await request.json()
-    const { customerName, customerPhone, products } = body
+    const { customerName, customerPhone, products, customerDNI } = body
+    console.log('POST /api/orders - Request body:', { customerName, customerPhone, customerDNI, products })
 
     if (!customerName || !customerPhone || !products || products.length === 0) {
+      console.log('POST /api/orders - Validation failed:', {
+        customerName: !!customerName,
+        customerPhone: !!customerPhone,
+        products: !!products,
+        productsLength: products?.length
+      })
       return NextResponse.json({ error: "Faltan datos requeridos" }, { status: 400 })
     }
 
+    console.log('POST /api/orders - Starting product validation')
     for (const product of products) {
+      console.log('POST /api/orders - Checking product:', product.name)
       const existingProduct = await Product.findOne({ name: product.name })
+      console.log('POST /api/orders - Existing product:', existingProduct ? 'found' : 'not found')
       if (!existingProduct) {
+        console.log('POST /api/orders - Product not found:', product.name)
         return NextResponse.json({ error: `Producto "${product.name}" no encontrado` }, { status: 400 })
       }
-      if (existingProduct.stock < product.quantity) {
+
+      // Calculate total available stock (from variants or main stock)
+      const totalStock = existingProduct.variants && existingProduct.variants.length > 0
+        ? existingProduct.variants.reduce((sum: number, variant: any) => sum + (variant.stock_total || 0), 0)
+        : existingProduct.stock || 0
+
+      console.log('POST /api/orders - Total stock calculated:', totalStock, 'Requested:', product.quantity)
+      if (totalStock < product.quantity) {
+        console.log('POST /api/orders - Insufficient stock for product:', product.name, 'Total stock:', totalStock, 'Requested:', product.quantity)
         return NextResponse.json({ error: `Stock insuficiente para "${product.name}"` }, { status: 400 })
       }
     }
@@ -77,6 +102,7 @@ export async function POST(request: NextRequest) {
       orderId,
       customerName,
       customerPhone,
+      customerDNI,
       products,
       total,
     })

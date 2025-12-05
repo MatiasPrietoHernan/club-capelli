@@ -11,6 +11,7 @@ export interface IOrder extends Document {
   orderId: string
   customerName: string
   customerPhone: string
+  customerDNI?:string
   address?: string
   postal_code?: string
   products: IOrderProduct[]
@@ -45,6 +46,11 @@ const OrderSchema = new Schema<IOrder>(
       required: true,
       trim: true,
       index: true,
+    },
+    customerDNI: {
+      type: String,
+      required: false,
+      trim: true,
     },
     address: {
       type: String,
@@ -87,5 +93,6 @@ const OrderSchema = new Schema<IOrder>(
 OrderSchema.index({ createdAt: -1 })
 OrderSchema.index({ customerPhone: 1, createdAt: -1 })
 OrderSchema.index({ status: 1, createdAt: -1 })
+OrderSchema.index({ customerDNI: 1, createdAt: -1 })
 
 export default mongoose.models.Order || mongoose.model<IOrder>("Order", OrderSchema)

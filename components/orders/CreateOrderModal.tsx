@@ -31,6 +31,7 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }: Cr
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [customerName, setCustomerName] = useState("")
   const [customerPhone, setCustomerPhone] = useState("")
+  const [customerDNI, setCustomerDNI] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
 
@@ -121,6 +122,7 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }: Cr
   }
 
   const handleSubmit = async () => {
+    console.log({ customerName, customerPhone, customerDNI, products })
     if (!customerName || !customerPhone || products.length === 0) {
       toast.error("Por favor completa todos los campos requeridos", {position:"top-center",style:{color:"red"},duration:3000})
       return
@@ -137,6 +139,7 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }: Cr
           customerName,
           customerPhone,
           products,
+          customerDNI,
         }),
       })
 
@@ -150,6 +153,7 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }: Cr
         setSelectedQuantity(1)
         setCustomerName("")
         setCustomerPhone("")
+        setCustomerDNI("")
 
         onOrderCreated()
         onClose()
@@ -232,7 +236,7 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }: Cr
               <div>
                 {selectedProduct && (
                   <div className="text-sm">
-                    <div className="font-medium text-green-600">{selectedProduct.name}</div>
+                    <div className="font-medium text-orange-600">{selectedProduct.name}</div>
                     <div className="text-muted-foreground">
                       Precio: {formatCurrency(selectedProduct.salePrice || selectedProduct.price)}
                     </div>
@@ -244,7 +248,7 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }: Cr
                 <Button
                   onClick={() => addProductToOrder()}
                   disabled={!selectedProduct || selectedQuantity < 1}
-                  className="w-full bg-green-600 hover:bg-green-700"
+                  className="w-full #FF6B1A"
                 >
                   + Agregar
                 </Button>
@@ -295,11 +299,15 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }: Cr
                 <Label htmlFor="customer-phone">Teléfono</Label>
                 <Input id="customer-phone" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} />
               </div>
+              <div>
+                <Label htmlFor="customer-dni">DNI</Label>
+                <Input id="customer-dni" value={customerDNI} onChange={(e) => setCustomerDNI(e.target.value)} />
+              </div>
             </div>
           </div>
 
           {/* Create Order Button */}
-          <Button onClick={handleSubmit} className="w-full bg-green-600 hover:bg-green-700" disabled={isLoading}>
+          <Button onClick={handleSubmit} className="w-full #FF6B1A" disabled={isLoading}>
             {isLoading ? "Creando..." : "Crear Orden"}
           </Button>
         </div>

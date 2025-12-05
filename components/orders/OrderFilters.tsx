@@ -85,12 +85,17 @@ export default function OrderFilters({
         {/* Teléfono */}
         <div>
           <label className="text-sm font-medium text-muted-foreground mb-2 block">
-            Filtrar por teléfono
+            Filtrar por teléfono o DNI
           </label>
           <Input
-            placeholder="Número de teléfono..."
+            placeholder="Número de teléfono o DNI"
             value={phoneFilter}
-            onChange={(e) => setPhoneFilter(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value.replace(/[^0-9]/g, '')
+              setPhoneFilter(value)
+            }}
+            inputMode="numeric"
+            pattern="[0-9]*"
             className="w-full"
           />
         </div>

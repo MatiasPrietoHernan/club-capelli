@@ -63,6 +63,20 @@ export default function TagsPage() {
     }
   }, [])
 
+  // Recargar categorías cuando cambian los filtros/paginación
+  useEffect(() => {
+    if (activeTab === "categories") {
+      loadCategories()
+    }
+  }, [categoriesCurrentPage, categoriesItemsPerPage])
+
+  // Recargar marcas cuando cambian los filtros/paginación
+  useEffect(() => {
+    if (activeTab === "brands") {
+      loadBrands()
+    }
+  }, [brandsCurrentPage, brandsItemsPerPage])
+
   // Separate handlers for each tab
   const handleCategoriesSearch = (query: string) => {
     setCategoriesSearchQuery(query)
@@ -359,27 +373,23 @@ export default function TagsPage() {
   const goToCategoriesPage = (page: number) => {
     if (page >= 1 && page <= categoriesTotalPages) {
       setCategoriesCurrentPage(page)
-      setTimeout(() => loadCategories(), 0)
     }
   }
 
   const goToBrandsPage = (page: number) => {
     if (page >= 1 && page <= brandsTotalPages) {
       setBrandsCurrentPage(page)
-      setTimeout(() => loadBrands(), 0)
     }
   }
 
   const handleCategoriesItemsPerPageChange = (value: string) => {
     setCategoriesItemsPerPage(parseInt(value))
     setCategoriesCurrentPage(1)
-    setTimeout(() => loadCategories(), 0)
   }
 
   const handleBrandsItemsPerPageChange = (value: string) => {
     setBrandsItemsPerPage(parseInt(value))
     setBrandsCurrentPage(1)
-    setTimeout(() => loadBrands(), 0)
   }
 
   return (

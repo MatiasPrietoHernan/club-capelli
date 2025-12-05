@@ -1,16 +1,14 @@
 "use client"
-
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ChevronDown, ChevronRight } from "lucide-react"
-import { format } from "date-fns"
+import { format, isValid } from "date-fns"
 import { es } from "date-fns/locale"
 import { IOrder } from "@/types/order"
 import Image from "next/image"
-
 
 interface OrderCardProps {
   order: IOrder
@@ -19,11 +17,11 @@ interface OrderCardProps {
 
 export default function OrderCard({ order, onStatusChange }: OrderCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
+  
   const isShipping = Boolean(
-  (order.address && order.address !== "null") ||
-  (order.postal_code && order.postal_code !== "null")
-);
-
+    (order.address && order.address !== "null") ||
+    (order.postal_code && order.postal_code !== "null")
+  );
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -48,11 +46,22 @@ export default function OrderCard({ order, onStatusChange }: OrderCardProps) {
     }).format(amount)
   }
 
+  const formatDateSafely = (dateInput: string | Date | undefined | null): string => {
+    if (!dateInput) {
+      return "Fecha no disponible";
+    }
+    const date = new Date(dateInput);
+    if (isValid(date)) {
+      return format(date, "dd/MM/yyyy", { locale: es });
+    }
+    return "Fecha inválida";
+  };
+
   return (
     <Card className="mb-4">
       <CardContent className="p-3 md:p-4">
         <div className="space-y-3 cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
-          {/* Primera fila: Botón expandir, ID de orden y badge de estado */}
+
           <div className="flex items-center justify-between" >
             <div className="flex items-center gap-2 md:gap-4">
               <Button variant="ghost" size="sm" className="p-1">
@@ -63,24 +72,22 @@ export default function OrderCard({ order, onStatusChange }: OrderCardProps) {
               <Badge variant="default" className="bg-orange-500">{isShipping ? "Envio" : "Retiro en local"}</Badge>
             </div>
           </div>
-
           {/* Segunda fila: Información del cliente y orden */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs md:text-sm text-muted-foreground pl-8 md:pl-12">
             <div>
               <span className="block font-medium text-foreground truncate">{order.customerName}</span>
             </div>
             <div>
-              <span className="block">{format(new Date(order.createdAt), "dd/MM/yyyy", { locale: es })}</span>
+              <span className="block">{formatDateSafely(order.createdAt)}</span>
             </div>
             <div>
               <span className="block font-semibold text-foreground">{formatCurrency(order.total)}</span>
             </div>
             <div>
-              <span className="block">{order.products.length} prod.</span>
+              <span className="block">{order.products?.length ?? 0} prod.</span>
             </div>
           </div>
         </div>
-
         {isExpanded && (
           <div className="mt-4 md:mt-6 pl-4 md:pl-8 border-t pt-4">
             <div className="mb-4 md:flex md:justify-between md:mb-0">
@@ -101,8 +108,7 @@ export default function OrderCard({ order, onStatusChange }: OrderCardProps) {
                 </Select>
               </div>
             </div>
-
-            {order.products.map((product, index) => (
+            {order.products?.map((product, index) => (
               <div key={index} className="mb-4 p-3 md:p-4 bg-gray-200 rounded-lg">
                 <div className="flex items-start gap-4">
                   <Image
@@ -112,10 +118,8 @@ export default function OrderCard({ order, onStatusChange }: OrderCardProps) {
                     width={80}
                     height={80}
                   />
-
                   <div className="flex-1">
                     <h5 className="font-semibold text-base md:text-lg mb-2">{product.name}</h5>
-
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-4 text-sm">
                       <div>
                         <span className="text-muted-foreground">Cantidad: </span>
@@ -133,8 +137,7 @@ export default function OrderCard({ order, onStatusChange }: OrderCardProps) {
                   </div>
                 </div>
               </div>
-            ))}
-
+            )) ?? <div className="text-center text-muted-foreground">No hay productos disponibles</div>}
             <div className="space-y-2 md:space-y-0 md:grid md:grid-cols-3 md:gap-4 mt-4 text-sm">
               <div>
                 <span className="text-muted-foreground">Cliente: </span>
@@ -145,8 +148,16 @@ export default function OrderCard({ order, onStatusChange }: OrderCardProps) {
                 <span>{order.customerPhone}</span>
               </div>
               <div>
+                {order.customerDNI && (
+                  <div>
+                    <span className="text-muted-foreground">DNI: </span>
+                    <span>{order.customerDNI}</span>
+                  </div>
+                )}
+              </div>
+              <div>
                 <span className="text-muted-foreground">Fecha: </span>
-                <span>{format(new Date(order.createdAt), "dd/MM/yyyy", { locale: es })}</span>
+                <span>{formatDateSafely(order.createdAt)}</span>
               </div>
               {isShipping && (
                 <>
