@@ -69,7 +69,7 @@ export default function OrderCard({ order, onStatusChange }: OrderCardProps) {
               </Button>
               <span className="font-medium text-sm md:text-base">Orden {order.orderId}</span>
               <Badge className={getStatusColor(order.status)}>{order.status}</Badge>
-              <Badge variant="default" className="bg-orange-500">{isShipping ? "Envio" : "Retiro en local"}</Badge>
+              <Badge variant="default" className="bg-orange-500">{isShipping ? "Envio" : `Retiro en ${order.pickupdata?.branch}, ${order.pickupdata?.city}`}</Badge>
             </div>
           </div>
           {/* Segunda fila: Información del cliente y orden */}
